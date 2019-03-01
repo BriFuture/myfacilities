@@ -1,0 +1,13 @@
+
+venv
+build-*
+~*.docx
+bak.git
+*.pyc
+__pycache__
+venv*
+logfile.txt
+build
+*.egg-info
+dist
+deprecated

@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "*.html": "jinja-html"
+    },
+    "[html]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2
+    },
+    "[jinja-html]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2
+    },
+    "python.linting.pylintEnabled": false,
+    "python.pythonPath": "E:\\programs_toshiba\\python3.6\\python.exe"
+}
