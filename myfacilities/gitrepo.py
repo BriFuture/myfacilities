@@ -34,10 +34,10 @@ def readConfig():
 
 
 
-import argparse 
-def parseArgs():
+from argparse  import ArgumentParser
+def addArgs():
     readConfig()
-    parser = argparse.ArgumentParser(description="Create or remove git repository \
+    parser = ArgumentParser(description="Run this script under SUPER USER privilege. Create or remove git repository \
         under direcotry: {}. Currently only works for Linux. \
         Most operations are only tested under Linux".format(config["repo_dir"]))
 
@@ -57,7 +57,9 @@ def parseArgs():
         Do NOT put single-slash `/` as the src folder, it will make unestimated error.")
     parser.add_argument("-u", "--user", help="Specify the git repository owner, for example, the default owner is `git`")
     parser.add_argument("-g", "--group", help="Specify the git repository owner group, for example, the default owner group is `git`")
+    return parser
 
+def parseArgs(parser: ArgumentParser):
     args = parser.parse_args()
     if args.src_dir is not None and args.src_dir != "/":
         config["src"] = args.src_dir
@@ -113,10 +115,22 @@ def deleteRepo(repo: Path):
         logger.warning(e)
     logger.info("Repository deleted.")
 
+def is_root():
+    return os.getuid() == 0
 
 def main():
-    # if os.pl
-    parser = parseArgs()
+    parser = addArgs()
+    import sys
+    if not sys.platform.startswith('linux'):
+        print("Sorry, this script can only run on linux systems.")
+        return
+
+    if not is_root():
+        logger.warning("Try running this script as normal user.")
+        parser.print_help()
+        return
+
+    parseArgs(parser)
     
     repo = Path(config["repo_dir"]) / config["repo"]
     try:

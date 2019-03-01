@@ -12,7 +12,7 @@ with open('requirements.txt', "r", encoding="utf-8") as f:
 setup( 
     name = "brifuture-facilities", 
     packages = find_packages(where='.'), 
-    version = "0.0.1alpha4",
+    version = "0.0.1alpha6",
 
     entry_points = {
         "console_scripts": [
