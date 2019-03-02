@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+__version__ = "0.0.1alpha14"
+__author__ = "BriFuture"
+
 from pathlib import Path
 
 _BASE_DIR = Path.home() / ".shells"

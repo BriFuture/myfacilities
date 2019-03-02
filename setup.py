@@ -9,10 +9,12 @@ with open("README.md", "r", encoding="utf-8") as fh:
 with open('requirements.txt', "r", encoding="utf-8") as f:
     requires = f.read().splitlines()
 
+from myfacilities import __version__
+
 setup( 
     name = "brifuture-facilities", 
     packages = find_packages(where='.'), 
-    version = "0.0.1alpha6",
+    version = __version__,
 
     entry_points = {
         "console_scripts": [

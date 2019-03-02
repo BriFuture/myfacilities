@@ -4,6 +4,8 @@
 from . import createLogger, _CONFIG_DIR
 from pathlib import Path
 
+__version__ = "0.0.14"
+
 DEFAULT_REPO_DIR = "/src"
 
 logger = createLogger("gitrepo.log", stream=True)
@@ -13,18 +15,18 @@ config = {
     "user": "git",
     "group": "git",
 }
-config_file = _CONFIG_DIR / "gitrepo.yaml"
+config_file = _CONFIG_DIR / "gitrepo.json"
 
-import yaml
+import json
 def readConfig():
     global config
     if not config_file.exists():
         with config_file.open("w") as f:
-            yaml.dump(config, f)
+            json.dump(config, f)
         return
     
     with config_file.open() as f:
-        config = yaml.load(f.read())
+        config = json.loads(f.read())
     
     if "repo_dir" not in config:
         config["repo_dir"] = DEFAULT_REPO_DIR
@@ -33,15 +35,15 @@ def readConfig():
         config["recommended"] = False
 
 
-
 from argparse  import ArgumentParser
 def addArgs():
     readConfig()
-    parser = ArgumentParser(description="Run this script under SUPER USER privilege. Create or remove git repository \
-        under direcotry: {}. Currently only works for Linux. \
-        Most operations are only tested under Linux".format(config["repo_dir"]))
+    parser = ArgumentParser(description="""Run this script under SUPER USER privilege. Create or remove git repository
+under direcotry: {}. Currently only works for Linux. Most operations are only tested under Linux.
+Script version : {}.
+    """.format(config["repo_dir"], __version__))
 
-    parser.add_argument('repo', type=str, help="Specify the repository name, for example: \
+    parser.add_argument('repo', nargs="?", type=str, help="Specify the repository name, for example: \
         Test.git, if .git suffix is not typed, this script will add it automatically")
 
     action = parser.add_mutually_exclusive_group()
@@ -52,23 +54,50 @@ def addArgs():
     action.add_argument("-d", "--delete", 
         help="Remove a existing repository under {}.".format(config["repo_dir"]),
         action="store_true")
+    
+    action.add_argument("-l", "--list", 
+        help="List existing repositories under {}.".format(config["repo_dir"]),
+        action="store_true")
 
     parser.add_argument("-s", "--src-dir", help="Specify the src folder for git repository, for example, the default path is `/src`.\
         Do NOT put single-slash `/` as the src folder, it will make unestimated error.")
-    parser.add_argument("-u", "--user", help="Specify the git repository owner, for example, the default owner is `git`")
-    parser.add_argument("-g", "--group", help="Specify the git repository owner group, for example, the default owner group is `git`")
+    parser.add_argument("-u", "--user", help="Specify the git repository owner, for example, the default owner is `git`.")
+    parser.add_argument("-g", "--group", help="Specify the git repository owner group, for example, the default owner group is `git`.")
+    parser.add_argument("-w", "--windows", help="Force this script running on Windows platform.", action="store_true")
+    parser.add_argument("-f", "--force", help="Force this script running even without SUPER USER previlige.", action="store_true")
+    parser.add_argument("-V", "--version", help="Print this script version", action="store_true")
     return parser
+
+import sys
 
 def parseArgs(parser: ArgumentParser):
     args = parser.parse_args()
-    if args.src_dir is not None and args.src_dir != "/":
-        config["src"] = args.src_dir
+    if args.version:
+        print("Script gitrepo's version is {}".format(__version__))
+        sys.exit(0)
 
     config["action"] = "init"
     if args.delete:
         config["action"] = "delete"
+    elif args.list:
+        config["action"] = "list"
 
-    repo = args.repo
+    config["windows"] = args.windows
+    config["normal_user"] = args.force
+    
+    if config["action"] != "list":
+        if not args.repo:
+            logger.warning("Repository name should be specified. Or -l (--list) options should be specified. \n------------------------")
+            parser.print_help()
+            sys.exit(1)
+    else:
+        config["windows"] = True
+        config["normal_user"] = True
+
+    if args.src_dir is not None and args.src_dir != "/":
+        config["src"] = args.src_dir
+
+    repo = args.repo or "Test"
     if repo[-4:] != ".git":
         repo = "{}.git".format(repo)
 
@@ -93,12 +122,11 @@ def createRepo(repo: Path):
     repo.mkdir(parents=True)
     import subprocess
     try:
-        subprocess.run(["sudo", "-s", "git", "init", "--bare", "--shared", str(repo.absolute())])
+        subprocess.run(["git", "init", "--bare", "--shared", str(repo.absolute())])
         shutil.chown(repo, config["user"], config["group"])
     except Exception as e:
         logger.critical("Git may not be installed, please install git first, \
-            or you are not running this command under super user privilege. You may need to run this script under super user privilege.\
-            \n{}".format(fnf))
+            or you are not running this command under super user privilege. You may need to run this script under super user privilege.")
         logger.critical(e)
 
     logger.info("Repository created.")
@@ -115,36 +143,53 @@ def deleteRepo(repo: Path):
         logger.warning(e)
     logger.info("Repository deleted.")
 
+def listRepo(repo: Path):
+    repo_dir = repo.parent
+    repos = []
+    for r in repo_dir.iterdir():
+        if r.suffix == ".git" and r.is_dir():
+            head = r / "HEAD"
+            if head.exists():
+                repos.append(r)
+    logger.info("Repositories found count: {}".format(len(repos)))
+    for re in repos:
+        logger.info("Found a repository: {}".format(re.stem))
+
 def is_root():
-    return os.getuid() == 0
+    if hasattr(os, "getuid"):
+        return os.getuid() == 0
+    return False
 
 def main():
     parser = addArgs()
-    import sys
-    if not sys.platform.startswith('linux'):
-        print("Sorry, this script can only run on linux systems.")
+    parseArgs(parser)
+    if not sys.platform.startswith('linux') and not config["windows"]:
+        logger.warning("Sorry, this script can only run on linux systems.")
         return
 
-    if not is_root():
-        logger.warning("Try running this script as normal user.")
+    if not is_root() and not config["normal_user"]:
+        logger.warning("Try running this script as normal user.\n---------------")
         parser.print_help()
         return
 
-    parseArgs(parser)
-    
     repo = Path(config["repo_dir"]) / config["repo"]
     try:
         if config["action"] == "delete":
             deleteRepo(repo)
-        else:
+        elif config["action"] == "init":
             createRepo(repo)
-    except:
-            # for fisrt using this script
-        if config["recommended"] is False:
-            parser.print_help()
-            with config_file.open("w") as f:
-                config["recommended"] = True
-                yaml.dump(config, f)
+        else:
+            listRepo(repo)
+    except Exception as e:
+        logger.warning(e)
+
+def first_taste():
+        # for fisrt using this script
+    if config["recommended"] is False:
+        parser.print_help()
+        with config_file.open("w") as f:
+            config["recommended"] = True
+            json.dump(config, f)
         
     
 

@@ -17,6 +17,8 @@ then it won't start UdpServer,
 """
 # 功能：发送广播包或接受心跳包
 
+__version__ = "0.0.5"
+
 SERVER_RECV_PORT = 7000
 LOCAL_RECV_PORT = 7007
 import socket
