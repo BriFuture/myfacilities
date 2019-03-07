@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = 'Michael Liao'
+"""Monitor folder's change and restart predefined Program
+"""
+
+__author__ = 'BriFuture'
 
 import os, sys, time, subprocess
 

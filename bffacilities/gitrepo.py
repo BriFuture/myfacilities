@@ -1,10 +1,18 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-from . import createLogger, _CONFIG_DIR
+"""A command which may simplify the creation or deletion a shared git repository on personal mini git server.
+
+"""
+
+__version__ = "0.0.16"
+
+from . import createLogger, _CONFIG_DIR, initGetText
 from pathlib import Path
 
-__version__ = "0.0.14"
+initGetText()
+import gettext
+tr = gettext.gettext
 
 DEFAULT_REPO_DIR = "/src"
 
@@ -38,34 +46,34 @@ def readConfig():
 from argparse  import ArgumentParser
 def addArgs():
     readConfig()
-    parser = ArgumentParser(description="""Run this script under SUPER USER privilege. Create or remove git repository
+    parser = ArgumentParser(description=tr("""Run this script under SUPER USER privilege. Create or remove git repository
 under direcotry: {}. Currently only works for Linux. Most operations are only tested under Linux.
 Script version : {}.
-    """.format(config["repo_dir"], __version__))
+    """).format(config["repo_dir"], __version__))
 
-    parser.add_argument('repo', nargs="?", type=str, help="Specify the repository name, for example: \
-        Test.git, if .git suffix is not typed, this script will add it automatically")
+    parser.add_argument('repo', nargs="?", type=str, help=tr("Specify the repository name, for example: \
+        Test.git, if .git suffix is not typed, this script will add it automatically"))
 
     action = parser.add_mutually_exclusive_group()
     action.add_argument("-i", "--init", 
-        help="Default action, Init a new git repository under {}.".format(config["repo_dir"]),
+        help=tr("Default action, Init a new git repository under {}.").format(config["repo_dir"]),
         action="store_true")
 
     action.add_argument("-d", "--delete", 
-        help="Remove a existing repository under {}.".format(config["repo_dir"]),
+        help=tr("Remove a existing repository under {}.").format(config["repo_dir"]),
         action="store_true")
     
     action.add_argument("-l", "--list", 
-        help="List existing repositories under {}.".format(config["repo_dir"]),
+        help=tr("List existing repositories under {}.").format(config["repo_dir"]),
         action="store_true")
 
-    parser.add_argument("-s", "--src-dir", help="Specify the src folder for git repository, for example, the default path is `/src`.\
-        Do NOT put single-slash `/` as the src folder, it will make unestimated error.")
-    parser.add_argument("-u", "--user", help="Specify the git repository owner, for example, the default owner is `git`.")
-    parser.add_argument("-g", "--group", help="Specify the git repository owner group, for example, the default owner group is `git`.")
-    parser.add_argument("-w", "--windows", help="Force this script running on Windows platform.", action="store_true")
-    parser.add_argument("-f", "--force", help="Force this script running even without SUPER USER previlige.", action="store_true")
-    parser.add_argument("-V", "--version", help="Print this script version", action="store_true")
+    parser.add_argument("-s", "--src-dir", help=tr("Specify the src folder for git repository, for example, the default path is `/src`.\
+        Do NOT put single-slash `/` as the src folder, it will make unestimated error."))
+    parser.add_argument("-u", "--user", help=tr("Specify the git repository owner, for example, the default owner is `git`."))
+    parser.add_argument("-g", "--group", help=tr("Specify the git repository owner group, for example, the default owner group is `git`."))
+    parser.add_argument("-w", "--windows", help=tr("Force this script running on Windows platform."), action="store_true")
+    parser.add_argument("-f", "--force", help=tr("Force this script running even without SUPER USER previlige."), action="store_true")
+    parser.add_argument("-V", "--version", help=tr("Print this script version"), action="store_true")
     return parser
 
 import sys

@@ -9,7 +9,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 with open('requirements.txt', "r", encoding="utf-8") as f:
     requires = f.read().splitlines()
 
-from myfacilities import __version__
+from bffacilities import __version__
 
 setup( 
     name = "brifuture-facilities", 
@@ -18,9 +18,10 @@ setup(
 
     entry_points = {
         "console_scripts": [
-            'bf_broadcast = myfacilities.broadcast:main',
-            'bf_gitrepo   = myfacilities.gitrepo:main',
-        ]
+            'bf_broadcast = bffacilities.broadcast:main',
+            'bf_gitrepo   = bffacilities.gitrepo:main',
+        ],
+
     },
 
     description = "BriFuture's scripts set, all scripts will be written with Python3",
@@ -32,11 +33,14 @@ setup(
     install_requires = requires,
 
     include_package_data = True,
-    zip_safe=True,
+    zip_safe=False,
+    package_data = {
+        '':['locale/*'],
+    },
     exclude_package_data = {'': ['__pycache__']},
 
     # download_url = "",
-    keywords = [ "webserver", "shadowsocks-manager" ],
+    keywords = [ "facilities" ],
     classifiers = [ 
         "Programming Language :: Python", 
         "Programming Language :: Python :: 3" ,

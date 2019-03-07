@@ -1,0 +1,77 @@
+# Chinese (Simplified, China) translations for PROJECT.
+# Copyright (C) 2019 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-03-07 10:17+0800\n"
+"PO-Revision-Date: 2019-03-07 10:17+0800\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_Hans_CN\n"
+"Language-Team: zh_Hans_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: myfacilities/gitrepo.py:49
+msgid ""
+"Run this script under SUPER USER privilege. Create or remove git "
+"repository\n"
+"under direcotry: {}. Currently only works for Linux. Most operations are "
+"only tested under Linux.\n"
+"Script version : {}.\n"
+"    "
+msgstr "以管理员/su权限运行该脚本。在目录：{} 下创建或删除共享的 Git 仓库。当前仅能在 Linux 系统下工作。大多数的操作仅在 Linux 系统下测试过。脚本版本：{}"
+
+#: myfacilities/gitrepo.py:54
+msgid ""
+"Specify the repository name, for example:         Test.git, if .git "
+"suffix is not typed, this script will add it automatically"
+msgstr "指定仓库名称如 Test.git，如果没有 .git 后缀，那么该脚本将会自动添加。"
+
+#: myfacilities/gitrepo.py:59
+msgid "Default action, Init a new git repository under {}."
+msgstr "默认操作，在目录 {} 下初始化新的仓库"
+
+#: myfacilities/gitrepo.py:63
+msgid "Remove a existing repository under {}."
+msgstr "删除一个在目录 {} 下已存在的仓库"
+
+#: myfacilities/gitrepo.py:67
+msgid "List existing repositories under {}."
+msgstr "列出在目录 {} 下已存在的仓库"
+
+#: myfacilities/gitrepo.py:70
+msgid ""
+"Specify the src folder for git repository, for example, the default path "
+"is `/src`.        Do NOT put single-slash `/` as the src folder, it will "
+"make unestimated error."
+msgstr "指定仓库根目录 src，比如默认的根目录是 `/src`。不要将 Linux 系统的根目录 `/` 作为 src 文件夹。这可能会造成无法预料的错误。"
+
+#: myfacilities/gitrepo.py:72
+msgid "Specify the git repository owner, for example, the default owner is `git`."
+msgstr "指定 git 仓库的属主，默认的属主为 `git`。"
+
+#: myfacilities/gitrepo.py:73
+msgid ""
+"Specify the git repository owner group, for example, the default owner "
+"group is `git`."
+msgstr "指定 git 仓库的数组，默认的数组是 `git`"
+
+#: myfacilities/gitrepo.py:74
+msgid "Force this script running on Windows platform."
+msgstr "强制脚本在 Windows 平台下运行"
+
+#: myfacilities/gitrepo.py:75
+msgid "Force this script running even without SUPER USER previlige."
+msgstr "强制脚本在没有超级用户权限的情况下运行"
+
+#: myfacilities/gitrepo.py:76
+msgid "Print this script version"
+msgstr "输出版本"
+
