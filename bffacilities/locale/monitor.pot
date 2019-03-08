@@ -1,0 +1,68 @@
+# Translations template for PROJECT.
+# Copyright (C) 2019 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-03-08 21:17+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: bffacilities/monitor.py:53
+msgid "Monitor file changes, and execute prepared commands."
+msgstr ""
+
+#: bffacilities/monitor.py:57
+msgid ""
+"Specify cmd to execute after file events triggered. If the command have "
+"its options, for example 'python -V', use quote \" to wrap the whole "
+"command."
+msgstr ""
+
+#: bffacilities/monitor.py:58
+msgid ""
+"Read from config file, only file name is needed, for example, if you type"
+" '--config test', then this script will find a file named test.json which"
+" locates under {}. Note: The contents in the file will override other "
+"options given as command arguments."
+msgstr ""
+
+#: bffacilities/monitor.py:60
+msgid ""
+"Append command arguments for specified CMD. These arguments should not "
+"start with '-'"
+msgstr ""
+
+#: bffacilities/monitor.py:61
+msgid "The directory to monitor, . by default."
+msgstr ""
+
+#: bffacilities/monitor.py:62
+msgid "Recusively monitor the diretory and sub directories"
+msgstr ""
+
+#: bffacilities/monitor.py:63
+msgid "Specify the file suffix that needs to monitor, .py extension by default"
+msgstr ""
+
+#: bffacilities/monitor.py:64
+msgid "File that should be excluded when events triggerd"
+msgstr ""
+
+#: bffacilities/monitor.py:65
+msgid "Save the cofiguration into a file, the default file is {}"
+msgstr ""
+
+#: bffacilities/monitor.py:66
+msgid "Print version and exit."
+msgstr ""
+

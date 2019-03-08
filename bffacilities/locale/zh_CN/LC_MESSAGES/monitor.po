@@ -1,0 +1,69 @@
+# Chinese (Simplified, China) translations for PROJECT.
+# Copyright (C) 2019 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-03-08 21:17+0800\n"
+"PO-Revision-Date: 2019-03-08 21:02+0800\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_Hans_CN\n"
+"Language-Team: zh_Hans_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: bffacilities/monitor.py:53
+msgid "Monitor file changes, and execute prepared commands."
+msgstr "检查文件变动，变动后执行预设的命令。"
+
+#: bffacilities/monitor.py:57
+msgid ""
+"Specify cmd to execute after file events triggered. If the command have "
+"its options, for example 'python -V', use quote \" to wrap the whole "
+"command."
+msgstr "指定在文件事件触发后要执行的命令。如果命令带有选项，比如运行的命令是 'python -V'，用双引号将该指令包装起来"
+
+#: bffacilities/monitor.py:58
+msgid ""
+"Read from config file, only file name is needed, for example, if you type"
+" '--config test', then this script will find a file named test.json which"
+" locates under {}. Note: The contents in the file will override other "
+"options given as command arguments."
+msgstr "从配置文件中读取，只需要指定文件名，比如当你输入 '--config test'，该脚本就会在目录 {} 下面寻找叫做 test.json 的文件。注意：文件中的内容会覆盖掉命令行中其他参数的值。"
+
+#: bffacilities/monitor.py:60
+msgid ""
+"Append command arguments for specified CMD. These arguments should not "
+"start with '-'"
+msgstr "为指定的命令添加参数，参数不能以 - 开头"
+
+#: bffacilities/monitor.py:61
+msgid "The directory to monitor, . by default."
+msgstr "要监控的目录，默认是当前目录 '.' "
+
+#: bffacilities/monitor.py:62
+msgid "Recusively monitor the diretory and sub directories"
+msgstr "递归监视文件夹和子文件夹。"
+
+#: bffacilities/monitor.py:63
+msgid "Specify the file suffix that needs to monitor, .py extension by default"
+msgstr "指定要监视的文件后缀名，默认监视 .py 文件"
+
+#: bffacilities/monitor.py:64
+msgid "File that should be excluded when events triggerd"
+msgstr "排除的文件名，当这些文件改动时不会触发事件"
+
+#: bffacilities/monitor.py:65
+msgid "Save the cofiguration into a file, the default file is {}"
+msgstr "将配置保存到文件中，默认的文件为 {}"
+
+#: bffacilities/monitor.py:66
+msgid "Print version and exit."
+msgstr "输出版本并退出。"
+

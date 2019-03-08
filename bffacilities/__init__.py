@@ -16,10 +16,11 @@ _CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
 LANGUAGE_DIR = (Path(__file__).parent / "locale").resolve()
 import gettext
-def initGetText():
-    gettext.bindtextdomain("myfacilities", LANGUAGE_DIR)
-    gettext.textdomain("myfacilities")
-    gettext.find('myfacilities', "locale", languages=["zh_CN", "en_US"])
+def initGetText(domain="myfacilities") -> gettext.gettext:
+    gettext.bindtextdomain(domain, LANGUAGE_DIR)
+    gettext.textdomain(domain)
+    gettext.find(domain, "locale", languages=["zh_CN", "en_US"])
+    return gettext.gettext
 
 import logging
 def createLogger(name: str, stream = False, level = logging.DEBUG):

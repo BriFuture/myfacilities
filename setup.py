@@ -20,6 +20,7 @@ setup(
         "console_scripts": [
             'bf_broadcast = bffacilities.broadcast:main',
             'bf_gitrepo   = bffacilities.gitrepo:main',
+            'bf_monitor   = bffacilities.monitor:main'
         ],
 
     },

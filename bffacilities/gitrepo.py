@@ -8,15 +8,12 @@
 __version__ = "0.0.16"
 
 from . import createLogger, _CONFIG_DIR, initGetText
-from pathlib import Path
 
-initGetText()
-import gettext
-tr = gettext.gettext
+tr = initGetText("gitrepo")
+logger = createLogger("gitrepo.log", stream=True)
 
 DEFAULT_REPO_DIR = "/src"
 
-logger = createLogger("gitrepo.log", stream=True)
 config = {
     "repo_dir": DEFAULT_REPO_DIR,
     "recommended": False,
@@ -114,6 +111,8 @@ def parseArgs(parser: ArgumentParser):
     return parser
 
 import os, shutil
+from pathlib import Path
+
 def createRepo(repo: Path):
     if repo.exists():
         logger.warning("Repository: {} exists, if you want to recreate a new repository, please delete it first.\
