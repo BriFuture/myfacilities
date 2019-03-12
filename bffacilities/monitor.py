@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Monitor folder's change and restart predefined Program, Original File is copied from Liaoxuefei's tutorial, I made some modifications and optimizations.
+"""Description: Monitor folder's change and restart predefined Program, Original File is copied from Liaoxuefei's tutorial, 
+I made some modifications and optimizations. Now the changed filename will be send to the program and you can use {name} within
+cmd arguments to get the name.
+
+Author: BriFuture
 """
 
 __author__ = 'BriFuture'
-__version__ = '0.0.01'
+__version__ = '0.0.02'
 
 import os
 import sys
@@ -54,7 +58,9 @@ class Configuration(object):
 
         self.parser = parser
         argument = parser.add_mutually_exclusive_group(required=False)
-        argument.add_argument("-c", "--cmd", help=tr("Specify cmd to execute after file events triggered. If the command have its options, for example 'python -V', use quote \" to wrap the whole command."))
+        argument.add_argument("-c", "--cmd", help=tr("""Specify cmd to execute after file events triggered. If the command have its options,
+            for example 'python -V', use quote \" to wrap the whole command. It's recommend on parsing arguments in this way, so you can use {{name}}
+            to identify which file has been changed"""))
         argument.add_argument("-C", "--config", help=tr("Read from config file, only file name is needed, for example, if you type '--config test', then this script will find a file named test.json which locates under {}. Note: The contents in the file will override other options given as command arguments.").format(_CONFIG_DIR))
 
         parser.add_argument("-a", "--argument", nargs="*", help=tr("Append command arguments for specified CMD. These arguments should not start with '-'"))
@@ -63,6 +69,7 @@ class Configuration(object):
         parser.add_argument("-e", "--extension", nargs="*", type=str, help=tr("Specify the file suffix that needs to monitor, .py extension by default"))
         parser.add_argument("-E", "--exclude", nargs="*", type=str, help=tr("File that should be excluded when events triggerd"))
         parser.add_argument("-s", "--save-config", help=tr("Save the cofiguration into a file, the default file is {}").format(self._DEFAULT_LOC), nargs="?")
+        parser.add_argument("-S", "--start-at-first", help=tr("Start the process or command when this scripts running."), action="store_true")
         parser.add_argument("--version", help=tr("Print version and exit."), action="store_true")
 
 
@@ -94,6 +101,7 @@ class Configuration(object):
         self.config["mon_dir"] = str(Path(mon_dir).resolve())
         self.config["exclude"] = args.exclude or []
         self.config["recursive"] = args.recursive or True
+        self.config["start"] = args.start_at_first
 
         if args.save_config:
             sc = _CONFIG_DIR / "{}.json".format(args.save_config)
@@ -131,7 +139,7 @@ class MyFileSystemEventHander(FileSystemEventHandler):
 
         if ext_able:
             logger.info('File changed: {}'.format(src))
-            self.restart()
+            self.restart(name=src.name)
 
 
 process = None
@@ -142,15 +150,18 @@ class NewProcess(object):
     def __init__(self, config: dict):
         self.process = None
         self.config = config
-        self.command = self.config["cmd_args"][:]
+        # self.command = self.config["cmd_args"][:]
         # self.command.insert(0, self.config["cmd"])
-        self.command[0:0] = self.config["cmd"]
-        self.args = ' '.join(self.command)
+        # self.command[0:0] = self.config["cmd"]
+        command = " ".join(self.config["cmd"])
+        self.args = "{} {}".format(command, ' '.join(self.config["cmd_args"]))
+        # self.args = ' '.join(self.command)
 
-    def start(self):
-        logger.info('[Start process] {} ...'.format(self.args))
+    def start(self, name=None):
+        args = self.args.replace("{{name}}", name)
+        logger.info('[Start process] {} ...'.format(args))
         self.process = subprocess.Popen(
-            self.command, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr)
+            args, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr)
 
     def stop(self):
         if self.process:
@@ -162,9 +173,9 @@ class NewProcess(object):
                 self.process.returncode))
             self.process = None
 
-    def restart(self):
+    def restart(self, name=None):
         self.stop()
-        self.start()
+        self.start(name=name)
 
     def start_watch(self):
         observer = Observer()
@@ -174,7 +185,8 @@ class NewProcess(object):
         )
         observer.start()
         logger.info('Watching directory {}...'.format(self.config["mon_dir"]))
-        self.start()
+        if(self.config["start"]):
+            self.start()
         try:
             while True:
                 time.sleep(0.5)
