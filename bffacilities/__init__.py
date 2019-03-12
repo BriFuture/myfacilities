@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__version__ = "0.0.1alpha21"
+__version__ = "0.0.1alpha22"
 __author__ = "BriFuture"
 
 from pathlib import Path

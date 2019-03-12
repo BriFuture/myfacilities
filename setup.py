@@ -35,9 +35,9 @@ setup(
 
     include_package_data = True,
     zip_safe=False,
-    package_data = {
-        '':['locale/*'],
-    },
+    # package_data = {
+    #     '':['./bffacilites/locale/*'],
+    # },
     exclude_package_data = {'': ['__pycache__']},
 
     # download_url = "",

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Description: Monitor folder's change and restart predefined Program, Original File is copied from Liaoxuefei's tutorial, 
+"""Description: Monitor folder's change and restart predefined Program, Original File is copied from Liaoxuefei's tutorial.
+Monitor file changes, and execute prepared commands.
 I made some modifications and optimizations. Now the changed filename will be send to the program and you can use {name} within
 cmd arguments to get the name.
 
@@ -13,11 +14,7 @@ __version__ = '0.0.02'
 
 import os
 import sys
-import time
-import subprocess
 
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 from . import createLogger, _CONFIG_DIR, initGetText
 
 tr = initGetText("monitor")
@@ -28,7 +25,7 @@ from pathlib import Path
 import json
 from argparse import ArgumentParser
 class Configuration(object):
-    _DEFAULT_LOC = _CONFIG_DIR / "monitor.json"
+    _DEFAULT_LOC = _CONFIG_DIR / "monitor_default.json"
 
     def __init__(self):
         self.config = {
@@ -104,7 +101,7 @@ class Configuration(object):
         self.config["start"] = args.start_at_first
 
         if args.save_config:
-            sc = _CONFIG_DIR / "{}.json".format(args.save_config)
+            sc = _CONFIG_DIR / "monitor_{}.json".format(args.save_config)
         else:
             sc = self._DEFAULT_LOC 
 
@@ -115,9 +112,11 @@ class Configuration(object):
             # self.config["mon_dir"] = mon_dir
 
 import time
+from watchdog.events import FileSystemEventHandler
+
 class MyFileSystemEventHander(FileSystemEventHandler):
 
-    def __init__(self, fn, config):
+    def __init__(self, fn, config: Configuration):
         super(MyFileSystemEventHander, self).__init__()
         self.restart = fn
         self.config = config
@@ -142,9 +141,10 @@ class MyFileSystemEventHander(FileSystemEventHandler):
             self.restart(name=src.name)
 
 
-process = None
-
 import sys
+from watchdog.observers import Observer
+import subprocess
+
 class NewProcess(object):
 
     def __init__(self, config: dict):
@@ -152,6 +152,7 @@ class NewProcess(object):
         self.config = config
         # self.command = self.config["cmd_args"][:]
         # self.command.insert(0, self.config["cmd"])
+<<<<<<< HEAD
         # self.command[0:0] = self.config["cmd"]
         command = " ".join(self.config["cmd"])
         self.args = "{} {}".format(command, ' '.join(self.config["cmd_args"]))
@@ -160,10 +161,33 @@ class NewProcess(object):
     def start(self, name=None):
         args = self.args.replace("{{name}}", name)
         logger.info('[Start process] {} ...'.format(args))
+=======
+        self.command[0:0] = self.config["cmd"]
+        self.args = ' '.join(self.command)
+
+    def start_watch(self):
+        observer = Observer()
+        observer.schedule(MyFileSystemEventHander(self._restart, self.config), 
+            path=self.config["mon_dir"], 
+            recursive=self.config["recursive"]
+        )
+        observer.start()
+        logger.info('Watching directory: {}'.format(self.config["mon_dir"]))
+        self._start()
+        try:
+            while True:
+                time.sleep(0.5)
+        except KeyboardInterrupt:
+            observer.stop()
+        observer.join()
+
+    def _start(self):
+        logger.info('[Start process] {} ...'.format(self.args))
+>>>>>>> 1fd18951236ce354574f838d71f103cb7c65f335
         self.process = subprocess.Popen(
             args, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr)
 
-    def stop(self):
+    def _stop(self):
         if self.process:
             logger.info('[Kill process] [{}]...'.format(self.process.pid))
 
@@ -173,6 +197,7 @@ class NewProcess(object):
                 self.process.returncode))
             self.process = None
 
+<<<<<<< HEAD
     def restart(self, name=None):
         self.stop()
         self.start(name=name)
@@ -193,6 +218,11 @@ class NewProcess(object):
         except KeyboardInterrupt:
             observer.stop()
         observer.join()
+=======
+    def _restart(self):
+        self._stop()
+        self._start()
+>>>>>>> 1fd18951236ce354574f838d71f103cb7c65f335
 
 
 def main():
