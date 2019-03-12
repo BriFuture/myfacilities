@@ -152,7 +152,6 @@ class NewProcess(object):
         self.config = config
         # self.command = self.config["cmd_args"][:]
         # self.command.insert(0, self.config["cmd"])
-<<<<<<< HEAD
         # self.command[0:0] = self.config["cmd"]
         command = " ".join(self.config["cmd"])
         self.args = "{} {}".format(command, ' '.join(self.config["cmd_args"]))
@@ -161,29 +160,6 @@ class NewProcess(object):
     def start(self, name=None):
         args = self.args.replace("{{name}}", name)
         logger.info('[Start process] {} ...'.format(args))
-=======
-        self.command[0:0] = self.config["cmd"]
-        self.args = ' '.join(self.command)
-
-    def start_watch(self):
-        observer = Observer()
-        observer.schedule(MyFileSystemEventHander(self._restart, self.config), 
-            path=self.config["mon_dir"], 
-            recursive=self.config["recursive"]
-        )
-        observer.start()
-        logger.info('Watching directory: {}'.format(self.config["mon_dir"]))
-        self._start()
-        try:
-            while True:
-                time.sleep(0.5)
-        except KeyboardInterrupt:
-            observer.stop()
-        observer.join()
-
-    def _start(self):
-        logger.info('[Start process] {} ...'.format(self.args))
->>>>>>> 1fd18951236ce354574f838d71f103cb7c65f335
         self.process = subprocess.Popen(
             args, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr)
 
@@ -197,7 +173,6 @@ class NewProcess(object):
                 self.process.returncode))
             self.process = None
 
-<<<<<<< HEAD
     def restart(self, name=None):
         self.stop()
         self.start(name=name)
@@ -218,11 +193,6 @@ class NewProcess(object):
         except KeyboardInterrupt:
             observer.stop()
         observer.join()
-=======
-    def _restart(self):
-        self._stop()
-        self._start()
->>>>>>> 1fd18951236ce354574f838d71f103cb7c65f335
 
 
 def main():
