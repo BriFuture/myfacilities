@@ -10,7 +10,7 @@ Author: BriFuture
 """
 
 __author__ = 'BriFuture'
-__version__ = '0.0.02'
+__version__ = '0.0.04'
 
 import os
 import sys
@@ -157,9 +157,10 @@ class NewProcess(object):
         self.args = "{} {}".format(command, ' '.join(self.config["cmd_args"]))
         # self.args = ' '.join(self.command)
 
-    def start(self, name=None):
+    def start(self, name=""):
         args = self.args.replace("{{name}}", name)
         logger.info('[Start process] {} ...'.format(args))
+        args = args.split(" ")
         self.process = subprocess.Popen(
             args, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr)
 
