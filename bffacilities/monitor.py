@@ -10,7 +10,7 @@ Author: BriFuture
 """
 
 __author__ = 'BriFuture'
-__version__ = '0.0.04'
+__version__ = '0.0.05'
 
 import os
 import sys
@@ -60,7 +60,7 @@ class Configuration(object):
             to identify which file has been changed"""))
         argument.add_argument("-C", "--config", help=tr("Read from config file, only file name is needed, for example, if you type '--config test', then this script will find a file named test.json which locates under {}. Note: The contents in the file will override other options given as command arguments.").format(_CONFIG_DIR))
 
-        parser.add_argument("-a", "--argument", nargs="*", help=tr("Append command arguments for specified CMD. These arguments should not start with '-'"))
+        # parser.add_argument("-a", "--argument", nargs="*", help=tr("Append command arguments for specified CMD. These arguments should not start with '-'"))
         parser.add_argument("-d", "--directory", help=tr("The directory to monitor, . by default."))
         parser.add_argument("-r", "--recursive", help=tr("Recusively monitor the diretory and sub directories"), action="store_true")
         parser.add_argument("-e", "--extension", nargs="*", type=str, help=tr("Specify the file suffix that needs to monitor, .py extension by default"))
@@ -91,7 +91,7 @@ class Configuration(object):
             self.config["cmd"] = args.cmd.split(" ")
         else:
             self.config["cmd"] = [args.cmd]
-        self.config["cmd_args"] = args.argument or []
+        # self.config["cmd_args"] = args.argument or []
         # , default is [".py"]
         self.config["mon_ext"] = args.extension or [".py"]
         mon_dir = args.directory or "."
@@ -154,7 +154,8 @@ class NewProcess(object):
         # self.command.insert(0, self.config["cmd"])
         # self.command[0:0] = self.config["cmd"]
         command = " ".join(self.config["cmd"])
-        self.args = "{} {}".format(command, ' '.join(self.config["cmd_args"]))
+        self.args = command
+        # self.args = "{} {}".format(command, ' '.join(self.config["cmd_args"]))
         # self.args = ' '.join(self.command)
 
     def start(self, name=""):
@@ -164,7 +165,7 @@ class NewProcess(object):
         self.process = subprocess.Popen(
             args, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr)
 
-    def _stop(self):
+    def stop(self):
         if self.process:
             logger.info('[Kill process] [{}]...'.format(self.process.pid))
 
