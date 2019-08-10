@@ -60,7 +60,7 @@ class Configuration(object):
             to identify which file has been changed"""))
         argument.add_argument("-C", "--config", help=tr("Read from config file, only file name is needed, for example, if you type '--config test', then this script will find a file named test.json which locates under {}. Note: The contents in the file will override other options given as command arguments.").format(_CONFIG_DIR))
 
-        # parser.add_argument("-a", "--argument", nargs="*", help=tr("Append command arguments for specified CMD. These arguments should not start with '-'"))
+        parser.add_argument("-a", "--argument", nargs="*", help=tr("Append command arguments for specified CMD. These arguments should not start with '-'"))
         parser.add_argument("-d", "--directory", help=tr("The directory to monitor, . by default."))
         parser.add_argument("-r", "--recursive", help=tr("Recusively monitor the diretory and sub directories"), action="store_true")
         parser.add_argument("-e", "--extension", nargs="*", type=str, help=tr("Specify the file suffix that needs to monitor, .py extension by default"))
@@ -91,7 +91,7 @@ class Configuration(object):
             self.config["cmd"] = args.cmd.split(" ")
         else:
             self.config["cmd"] = [args.cmd]
-        # self.config["cmd_args"] = args.argument or []
+        self.config["cmd_args"] = args.argument or []
         # , default is [".py"]
         self.config["mon_ext"] = args.extension or [".py"]
         mon_dir = args.directory or "."
@@ -206,7 +206,13 @@ def main():
     conf.parseArgs()
     
     np = NewProcess(conf.config)
-    np.start_watch()
+    try:
+        np.start_watch()
+    except KeyboardInterrupt:
+        print("Keyboard Interrupt, process killed")
+    finally:
+        np.stop()
+
 
 import sys
 # 退出该程序时，关闭子进程
@@ -217,6 +223,7 @@ def beforeExit(signum, frame):
     sys.exit()
 
 if __name__ == '__main__':
-    import signal
-    signal.signal(signal.SIGINT, beforeExit)
+    # import signal
+    # signal.signal(signal.SIGINT, beforeExit)
     main()
+    
