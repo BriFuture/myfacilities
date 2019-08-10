@@ -10,7 +10,7 @@ Author: BriFuture
 """
 
 __author__ = 'BriFuture'
-__version__ = '0.0.05'
+__version__ = '0.1.06'
 
 import os
 import sys
@@ -154,8 +154,10 @@ class NewProcess(object):
         # self.command.insert(0, self.config["cmd"])
         # self.command[0:0] = self.config["cmd"]
         command = " ".join(self.config["cmd"])
-        self.args = command
-        # self.args = "{} {}".format(command, ' '.join(self.config["cmd_args"]))
+        if len(self.config["cmd_args"]) > 0:
+            self.args = "{} {}".format(command, ' '.join(self.config["cmd_args"]))
+        else:
+            self.args = command
         # self.args = ' '.join(self.command)
 
     def start(self, name=""):
@@ -197,11 +199,24 @@ class NewProcess(object):
         observer.join()
 
 
+np = None
 def main():
+    global np
     conf = Configuration()
     conf.parseArgs()
+    
     np = NewProcess(conf.config)
     np.start_watch()
 
+import sys
+# 退出该程序时，关闭子进程
+def beforeExit(signum, frame):
+    print("Exit")
+    global np
+    np.stop()
+    sys.exit()
+
 if __name__ == '__main__':
+    import signal
+    signal.signal(signal.SIGINT, beforeExit)
     main()
