@@ -15,7 +15,9 @@ __version__ = '0.1.06'
 import os
 import sys
 
-from . import createLogger, _CONFIG_DIR, initGetText
+from . import initGetText
+from ._util import createLogger
+from ._constants import _CONFIG_DIR
 
 tr = initGetText("monitor")
 logger = createLogger("monitor.log", stream=True)
