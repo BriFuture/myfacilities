@@ -37,7 +37,18 @@ class PaperUtil(Frame):
             print(check)
         else:
             # default action
-            print('current', os.getcwd())
+            _list_papers(os.getcwd())
+
+def _list_papers(dir):
+    path = Path(dir)
+    dirs = [x for x in path.iterdir() if x.is_dir() and x.name.isdigit()]
+    for p in dirs:
+        pdirs = [('- ' + x.name) for x in p.iterdir() if x.is_file()]
+        papers = "\n".join(pdirs)
+        print(f"{p.name} ({len(pdirs)})")
+        print(papers)
+        print()
+    print('current', path)
 
 
 def main(argv = None):
