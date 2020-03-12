@@ -10,14 +10,12 @@ Author: BriFuture
 """
 
 __author__ = 'BriFuture'
-__version__ = '0.1.06'
+__version__ = '0.2.1'
 
 import os
 import sys
 
-from . import initGetText
-from ._util import createLogger
-from ._constants import _CONFIG_DIR
+from ._util import createLogger, initGetText
 
 tr = initGetText("monitor")
 logger = createLogger("monitor.log", stream=True)
@@ -26,8 +24,10 @@ logger = createLogger("monitor.log", stream=True)
 from pathlib import Path
 import json
 from argparse import ArgumentParser
-class Configuration(object):
-    _DEFAULT_LOC = _CONFIG_DIR / "monitor_default.json"
+from ._frame import Frame
+class Configuration(Frame):
+    _DEFAULT_LOC = Path(os.getcwd()) / ".bfc" 
+    _DEFAULT_FILE = Path(os.getcwd()) / ".bfc" / "monitor.json"
 
     def __init__(self):
         self.config = {
@@ -51,6 +51,10 @@ class Configuration(object):
             return
         with file.open("r", encoding="utf-8") as f:
             self.config = json.loads(f.read())
+            # wont update cmdline args
+            # for k, v in config.items():
+            #     if k not in self.config:
+            #         self.config[k] = v
 
     def _addArgs(self):
         parser = ArgumentParser(description=tr("Monitor file changes, and execute prepared commands."))
@@ -60,32 +64,27 @@ class Configuration(object):
         argument.add_argument("-c", "--cmd", help=tr("""Specify cmd to execute after file events triggered. If the command have its options,
             for example 'python -V', use quote \" to wrap the whole command. It's recommend on parsing arguments in this way, so you can use {{name}}
             to identify which file has been changed"""))
-        argument.add_argument("-C", "--config", help=tr("Read from config file, only file name is needed, for example, if you type '--config test', then this script will find a file named test.json which locates under {}. Note: The contents in the file will override other options given as command arguments.").format(_CONFIG_DIR))
+        argument.add_argument("-C", "--config", help=tr("Read from config file, only file name is needed, for example, if you type '--config test', then this script will find a file named test.json which locates under {}. Note: The contents in the file will override other options given as command arguments.")
+            .format(Configuration._DEFAULT_FILE))
 
         parser.add_argument("-a", "--argument", nargs="*", help=tr("Append command arguments for specified CMD. These arguments should not start with '-'"))
         parser.add_argument("-d", "--directory", help=tr("The directory to monitor, . by default."))
         parser.add_argument("-r", "--recursive", help=tr("Recusively monitor the diretory and sub directories"), action="store_true")
         parser.add_argument("-e", "--extension", nargs="*", type=str, help=tr("Specify the file suffix that needs to monitor, .py extension by default"))
         parser.add_argument("-E", "--exclude", nargs="*", type=str, help=tr("File that should be excluded when events triggerd"))
-        parser.add_argument("-s", "--save-config", help=tr("Save the cofiguration into a file, the default file is {}").format(self._DEFAULT_LOC), nargs="?")
+        parser.add_argument("-s", "--save-config", help=tr("Save the cofiguration into a file, the default file is {}").format(self._DEFAULT_FILE), nargs="?")
         parser.add_argument("-S", "--start-at-first", help=tr("Start the process or command when this scripts running."), action="store_true")
-        parser.add_argument("--version", help=tr("Print version and exit."), action="store_true")
+        parser.add_argument("--version", help=tr("Print version and exit."), action="version", version="Monitor's version is {}".format(__version__))
 
 
-    def parseArgs(self):
-        args = self.parser.parse_args()
-        if args.version:
-            print("Monitor's version is {}".format(__version__))
-            sys.exit(0)
+    def parseArgs(self, argv):
+        args = self.parser.parse_args(argv)
 
-        if args.config is not None or args.cmd is None:
-            if args.cmd is None:
-                path = self._DEFAULT_LOC
-            else:
-                path = _CONFIG_DIR / "{}.json".format(args.config)
-            if not path.exists():
-                logger.critical("File {} not exists".format(str(path)))
-                return
+        if args.config is None and args.cmd is None:
+            logger.critical("Neither a config file is specified, nor cmd is given.")
+            sys.exit(1)
+
+        if args.config:
             self.readConfig(path)
             return
 
@@ -96,22 +95,23 @@ class Configuration(object):
         self.config["cmd_args"] = args.argument or []
         # , default is [".py"]
         self.config["mon_ext"] = args.extension or [".py"]
-        mon_dir = args.directory or "."
+        mon_dir = args.directory or os.getcwd()
         self.config["mon_dir"] = str(Path(mon_dir).resolve())
         self.config["exclude"] = args.exclude or []
         self.config["recursive"] = args.recursive or True
         self.config["start"] = args.start_at_first
 
         if args.save_config:
-            sc = _CONFIG_DIR / "monitor_{}.json".format(args.save_config)
+            sc = self._DEFAULT_FILE / "monitor_{}.json".format(args.save_config)
         else:
-            sc = self._DEFAULT_LOC 
+            sc = self._DEFAULT_FILE 
 
         with sc.open("w", encoding="utf-8") as f:
             # mon_dir = self.config["mon_dir"]
             # self.config["mon_dir"] = str(mon_dir)
             json.dump(self.config, f)
             # self.config["mon_dir"] = mon_dir
+Configuration._DEFAULT_LOC.mkdir(parents=True, exist_ok=True)
 
 import time
 from watchdog.events import FileSystemEventHandler
@@ -143,7 +143,6 @@ class MyFileSystemEventHander(FileSystemEventHandler):
             self.restart(name=src.name)
 
 
-import sys
 from watchdog.observers import Observer
 import subprocess
 
@@ -202,16 +201,19 @@ class NewProcess(object):
 
 
 np = None
-def main():
+def main(argv = None):
     global np
     conf = Configuration()
-    conf.parseArgs()
+    if argv is None:
+        argv = sys.argv[1:]
+    conf.parseArgs(argv)
     
     np = NewProcess(conf.config)
     try:
         np.start_watch()
     except KeyboardInterrupt:
         print("Keyboard Interrupt, process killed")
+        np.stop()
     finally:
         np.stop()
 

@@ -23,7 +23,7 @@ SERVER_RECV_PORT = 7000
 LOCAL_RECV_PORT = 7007
 import socket
 
-from . import createLogger
+from ._util import createLogger
 
 logger = None
 

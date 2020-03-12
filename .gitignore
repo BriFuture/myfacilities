@@ -12,3 +12,4 @@ build
 dist
 deprecated
 .vscode
+.bfc

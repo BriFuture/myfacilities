@@ -18,9 +18,8 @@ setup(
 
     entry_points = {
         "console_scripts": [
-            'bf_broadcast = bffacilities.broadcast:main',
-            'bf_gitrepo   = bffacilities.gitrepo:main',
-            'bf_monitor   = bffacilities.monitor:main'
+            'bffacility  = bffacilities.__main__:main',
+            'bff  = bffacilities.__main__:main',
         ],
 
     },
