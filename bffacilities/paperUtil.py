@@ -10,9 +10,11 @@ from ._frame import Frame
 from pathlib import Path
 from argparse import ArgumentParser
 import os
+from colorama import Fore, Style
 class PaperUtil(Frame):
     def __init__(self):
         self.config = {}
+        self.papers = []
 
     def readConfig(self, file):
         pass
@@ -34,22 +36,37 @@ class PaperUtil(Frame):
         args = self.parser.parse_args(argv)
         if args.check:
             check = args.check
-            print(check)
+            self._check_paper(check)
         else:
             # default action
-            _list_papers(os.getcwd())
+            self._list_papers(os.getcwd())
 
-def _list_papers(dir):
-    path = Path(dir)
-    dirs = [x for x in path.iterdir() if x.is_dir() and x.name.isdigit()]
-    for p in dirs:
-        pdirs = [('- ' + x.name) for x in p.iterdir() if x.is_file()]
-        papers = "\n".join(pdirs)
-        print(f"{p.name} ({len(pdirs)})")
-        print(papers)
-        print()
-    print('current', path)
+    def _list_papers(self, dir, printable=True):
+        path = Path(dir)
+        dirs = [x for x in path.iterdir() if x.is_dir() and x.name.isdigit()]
+        if printable: print('current', path)
+        for p in dirs:
+            pdirs = []
+            for x in p.iterdir():
+                if x.is_file():
+                    pdirs.append(x.name)
+                    self.papers.append(x.name.upper())
+            if not printable:
+                continue
+            print(f"folder: {p.name} ({len(pdirs)})")
+            for d in pdirs:
+                print('- ', d)
+            print('--------------------\n')
+        # print(self.papers)
 
+    def _check_paper(self, name):
+        self._list_papers(os.getcwd(), False)
+        if name.upper() in self.papers:
+            print(f"{Fore.GREEN}[Found] < {name} > {Style.RESET_ALL}")
+        else:
+            print(f"{Fore.RED}[Not Found] < {name} > {Style.RESET_ALL}")
+        # print(name)
+        pass
 
 def main(argv = None):
     pu = PaperUtil()

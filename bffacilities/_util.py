@@ -34,6 +34,6 @@ def createLogger(name: str, savefile = True, stream = False,
         sh.setLevel(level)
         sh.setFormatter(logging.Formatter("%(asctime)s %(levelname)s:  %(message)s"))
         logger.addHandler(sh)
-        print(f"Stream Logger for {name}")
+        # print(f"Stream Logger for {name}")
 
     return logger
