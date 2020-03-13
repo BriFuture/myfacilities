@@ -85,7 +85,7 @@ class Configuration(Frame):
             sys.exit(1)
 
         if args.config:
-            self.readConfig(path)
+            self.readConfig(args.config)
             return
 
         if args.cmd is not None and " " in args.cmd:

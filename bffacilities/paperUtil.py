@@ -45,19 +45,21 @@ class PaperUtil(Frame):
         path = Path(dir)
         dirs = [x for x in path.iterdir() if x.is_dir() and x.name.isdigit()]
         if printable: print('current', path)
+        paperCount = 0
         for p in dirs:
             pdirs = []
             for x in p.iterdir():
                 if x.is_file():
                     pdirs.append(x.name)
                     self.papers.append(x.name.upper())
+                    paperCount += 1
             if not printable:
                 continue
             print(f"folder: {p.name} ({len(pdirs)})")
             for d in pdirs:
                 print('- ', d)
             print('--------------------\n')
-        # print(self.papers)
+        print(f'Summary: {paperCount} papers')
 
     def _check_paper(self, name):
         self._list_papers(os.getcwd(), False)
