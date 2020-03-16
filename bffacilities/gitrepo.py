@@ -5,7 +5,7 @@
 
 """
 
-__version__ = "0.0.17"
+__version__ = "0.0.18"
 
 import shutil
 import os
@@ -27,6 +27,7 @@ class GitRepoFrame(Frame):
     ConfigFile = _CONFIG_DIR / "gitrepo.json"
 
     def __init__(self, *args, **kwargs):
+        super().__init__()
         self.config = {
             "repo_dir": DEFAULT_REPO_DIR,
             "recommended": False,
@@ -125,7 +126,17 @@ class GitRepoFrame(Frame):
 
         self.config["repo"] = repo
 
-
+    def run(self):
+        repo = Path(self.config["repo_dir"]) / self.config["repo"]
+        try:
+            if self.config["action"] == "delete":
+                deleteRepo(repo)
+            elif self.config["action"] == "init":
+                createRepo(repo)
+            else:
+                listRepo(repo)
+        except Exception as e:
+            logger.warning(e)
 
 def createRepo(repo: Path):
     if repo.exists():
@@ -202,17 +213,7 @@ def main(argv = None):
             "Try running this script as normal user.\n---------------")
         parser.print_help()
         return
-
-    repo = Path(config["repo_dir"]) / config["repo"]
-    try:
-        if config["action"] == "delete":
-            deleteRepo(repo)
-        elif config["action"] == "init":
-            createRepo(repo)
-        else:
-            listRepo(repo)
-    except Exception as e:
-        logger.warning(e)
+    gp.run()
 
 
 def first_taste():

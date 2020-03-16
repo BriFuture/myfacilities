@@ -2,6 +2,8 @@ import sys
 from ._util import initGetText
 from . import __version__
 
+availableCmds = ['gitrepo', 'monitor', 'broadcast', 'paperutil', 'tray']
+
 def main():
     tr = initGetText("bffacility")
     from argparse import ArgumentParser
@@ -14,7 +16,7 @@ def main():
     cmd = args.subcmd
 
     sys.argv.pop(0)
-    availableCmds = ['gitrepo', 'monitor', 'broadcast', 'paperutil']
+    
     if cmd in availableCmds:
         arg = sys.argv[1:]
     #  add custom sub-commands here
@@ -26,10 +28,14 @@ def main():
         monitor(arg)
     elif cmd == 'broadcast':
         from .broadcast import main as broadcast
-        broadcast()
+        broadcast(arg)
     elif cmd == 'paperutil':
         from .paperUtil import main as paperUtil
         paperUtil(arg)
+    elif cmd == 'tray':
+        print('test')
+        from .win_tray import main as tray
+        tray(arg)
     else:
         print('Available sub commands: ')
         cmds = ""

@@ -17,16 +17,43 @@ then it won't start UdpServer,
 """
 # 功能：发送广播包或接受心跳包
 
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 
 SERVER_RECV_PORT = 7000
 LOCAL_RECV_PORT = 7007
 import socket
 
 from ._util import createLogger
+from ._frame import Frame
+logger = createLogger("broadcast.log", stream=True)
 
-logger = None
+class Broadcaster(Frame):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
 
+    def initArgs(self):
+        from argparse import ArgumentParser
+        parser = ArgumentParser(prog='bffacility broadcast', description='broadcast message to local network')
+        parser.add_argument('-L', '--local', action='store_true',help='run at local client as Reciever')
+        self.parser = parser
+
+    def parseArgs(self, argv):
+        args = self.parser.parse_args(argv)
+        self.args = vars(args)
+
+    def run(self):
+        if self.args['local']:
+            logger.info("Running Local Mode")
+            local_machine()
+            server = UDPServer(("", LOCAL_RECV_PORT), UdpHandler)
+            try:
+                server.serve_forever() 
+            except Exception as e:
+                logger.warning(e)
+        else:
+            if isServerPortAvailable(SERVER_RECV_PORT):
+                logger.info("Running Server Mode")
+                run_server()
 
 def local_machine():
     """send broadcast udp packet to see who will response
@@ -115,27 +142,16 @@ def isServerPortAvailable(port: int) -> bool:
     sock.close()
     return False
 
-def main():
+def main(argv = None):
+    bc = Broadcaster()
+    bc.initArgs()
     import sys
-    isLocal = False
-    if len(sys.argv) > 1 and sys.argv[1] == "local":
-        isLocal = True
+    if argv is None:
+        argv = sys.argv[1:]
+    bc.parseArgs(argv)
 
-    global logger
-    if isLocal:
-        logger = createLogger("broadcast.log", stream=True)
-        logger.info("Running Local Mode")
-        local_machine()
-        server = UDPServer(("", LOCAL_RECV_PORT), UdpHandler)
-        try:
-            server.serve_forever() 
-        except Exception as e:
-            logger.warning(e)
-    else:
-        logger = createLogger("broadcast.log", stream=False)
-        if isServerPortAvailable(SERVER_RECV_PORT):
-            logger.info("Running Server Mode")
-            run_server()
+    bc.run()
+
 
 if __name__ == '__main__':
     main()
