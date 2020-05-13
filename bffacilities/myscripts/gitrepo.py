@@ -13,9 +13,9 @@ import sys
 from pathlib import Path
 from argparse import ArgumentParser
 import json
-from ._frame import Frame
-from ._util import createLogger, initGetText
-from ._constants import _CONFIG_DIR
+from bffacilities._frame import Frame
+from bffacilities._util import createLogger, initGetText
+from bffacilities._constants import _CONFIG_DIR
 
 tr = initGetText("gitrepo")
 logger = createLogger("gitrepo.log", stream=True)

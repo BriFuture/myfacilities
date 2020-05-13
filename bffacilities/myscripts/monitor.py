@@ -15,16 +15,15 @@ __version__ = '0.2.1'
 import os
 import sys
 
-from ._util import createLogger, initGetText
+from bffacilities._util import createLogger, initGetText
+from pathlib import Path
+import json
+from argparse import ArgumentParser
+from bffacilities._frame import Frame
 
 tr = initGetText("monitor")
 logger = createLogger("monitor.log", stream=True)
 
-
-from pathlib import Path
-import json
-from argparse import ArgumentParser
-from ._frame import Frame
 class Configuration(Frame):
     _DEFAULT_LOC = Path(os.getcwd()) / ".bfc" 
     _DEFAULT_FILE = Path(os.getcwd()) / ".bfc" / "monitor.json"

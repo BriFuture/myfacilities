@@ -4,4 +4,5 @@ __version__ = "0.0.2alpha2"
 __author__ = "BriFuture"
 
 
-from ._util import createLogger, initGetText
+from ._util import initGetText
+from .utils import createLogger

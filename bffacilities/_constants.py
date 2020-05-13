@@ -1,3 +1,5 @@
+"""some basic configurations
+"""
 from pathlib import Path
 
 _BASE_DIR = Path.home() / ".shells" # Basic Path

@@ -1,3 +1,9 @@
+#!/usr/env/bin python3
+# -*- coding: utf-8 -*-
+
+"""Use as script entry
+"""
+
 import sys
 from ._util import initGetText
 from . import __version__
@@ -21,16 +27,16 @@ def main():
         arg = sys.argv[1:]
     #  add custom sub-commands here
     if cmd == 'gitrepo':
-        from .gitrepo import main as gitrepo
+        from .myscripts.gitrepo import main as gitrepo
         gitrepo(arg)
     elif cmd == 'monitor':
-        from .monitor import main as monitor
+        from .myscripts.monitor import main as monitor
         monitor(arg)
     elif cmd == 'broadcast':
-        from .broadcast import main as broadcast
+        from .myscripts.broadcast import main as broadcast
         broadcast(arg)
     elif cmd == 'paperutil':
-        from .paperUtil import main as paperUtil
+        from .myscripts.paperUtil import main as paperUtil
         paperUtil(arg)
     elif cmd == 'tray':
         print('test')
