@@ -15,7 +15,7 @@ __version__ = '0.2.1'
 import os
 import sys
 
-from bffacilities._util import createLogger, initGetText
+from bffacilities.utils import createLogger, initGetText
 from pathlib import Path
 import json
 from argparse import ArgumentParser

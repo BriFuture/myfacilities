@@ -12,7 +12,7 @@ with open('requirements.txt', "r", encoding="utf-8") as f:
 from bffacilities import __version__
 
 setup( 
-    name = "brifuture-facilities", 
+    name = "bffacilities", 
     packages = find_packages(where='.'), 
     version = __version__,
 

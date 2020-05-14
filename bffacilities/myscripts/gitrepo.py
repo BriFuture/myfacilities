@@ -14,7 +14,7 @@ from pathlib import Path
 from argparse import ArgumentParser
 import json
 from bffacilities._frame import Frame
-from bffacilities._util import createLogger, initGetText
+from bffacilities.utils import createLogger, initGetText
 from bffacilities._constants import _CONFIG_DIR
 
 tr = initGetText("gitrepo")

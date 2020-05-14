@@ -5,7 +5,7 @@
 """
 
 import sys
-from ._util import initGetText
+from .utils import initGetText
 from . import __version__
 
 availableCmds = ['gitrepo', 'monitor', 'broadcast', 'paperutil', 'tray']

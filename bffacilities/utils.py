@@ -2,31 +2,52 @@
 import platform
 import os
 import atexit
-from ._constants import _LOG_DIR
 import logging
+from pathlib import Path
+_LOG_DIR = Path.home() / ".logs"   # Log Path
+_LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+formaterStr = "%(asctime)s %(levelname)s:  %(message)s"
 
 def createLogger(name: str, savefile = True, stream = False, 
-    level = logging.INFO, baseDir = _LOG_DIR):
-    """create logger, specify name, for example: test.log
-    suffix is not necessary but helpful
+    level = logging.INFO, baseDir = None, logger_prefix=''):
+    """create logger, specify name, for example: test
+    suffix will be appended
+    :: logger_prefix deprecated ::
     """
-    
-    log_file = baseDir / name
+    if baseDir is None:
+        baseDir = _LOG_DIR
+    elif type(baseDir) == str:
+        baseDir = Path(baseDir)
+    log_file = baseDir / (name + ".log")
 
+    _formater = logging.Formatter(formaterStr)
     logger = logging.getLogger(name)
     logger.setLevel(level)
     if savefile:
         fh = logging.FileHandler(log_file)
-        fh.setFormatter(logging.Formatter("[%(levelname)s] %(asctime)s:  %(message)s"))
+        fh.setFormatter(_formater)
         fh.setLevel(level)
         logger.addHandler(fh)
     if stream:
         sh = logging.StreamHandler()
         sh.setLevel(level)
-        sh.setFormatter(logging.Formatter("%(asctime)s %(levelname)s:  %(message)s"))
+        sh.setFormatter(_formater)
         logger.addHandler(sh)
     return logger
 
+## ********** For Translating **************
+_LANGUAGE_DIR = (Path(__file__).parent / "locale").resolve()
+import gettext
+def initGetText(domain="myfacilities", dirs = _LANGUAGE_DIR) -> gettext.gettext:
+    """make some configurations on gettext module 
+    for convenient internationalization
+    """
+    gettext.bindtextdomain(domain, dirs)
+    gettext.textdomain(domain)
+    gettext.find(domain, "locale", languages=["zh_CN", "en_US"])
+    return gettext.gettext
+## ********** For Translating **************
 
 logger = logging.getLogger('bffacilities')
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __version__ = '0.0.2'
-from bffacilities._util import createLogger, initGetText
+from bffacilities.utils import createLogger, initGetText
 from bffacilities._frame import Frame
 from pathlib import Path
 from argparse import ArgumentParser
