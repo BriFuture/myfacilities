@@ -1,0 +1,16 @@
+[Unit]
+Description=Start vncserver at startup.
+# Requires=lightdm.service
+After=syslog.target network.target
+
+[Service]
+Type=forking
+User=pi
+#PAMName=login
+PIDFile=/home/pi/.vnc/%H:%i.pid
+ExecStartPre=/bin/sh -c "/usr/bin/tightvncserver -kill :%i > /dev/null 2>&1 || :"
+ExecStart=/usr/bin/tightvncserver %i -geometry 1800x1000
+ExecStop=/bin/sh -c "/usr/bin/tightvncserver -kill :$i > /dev/null 2>&1 || :"
+
+[Install]
+WantedBy=multi-user.target

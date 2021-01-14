@@ -6,8 +6,12 @@ from setuptools import setup, find_packages
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+requires = []
 with open('requirements.txt', "r", encoding="utf-8") as f:
-    requires = f.read().splitlines()
+    for line in f:
+        if line.startswith("#"): continue
+        requires.append(line)
+requires = ",".join(requires)
 
 from bffacilities import __version__
 
@@ -35,7 +39,7 @@ setup(
     include_package_data = True,
     zip_safe=False,
     # package_data = {
-    #     '':['./bffacilites/locale/*'],
+    #     '':['./bffacilities/locale/*', './bffacilities/flask/*.py', './bffacilities/imgs/*'],
     # },
     exclude_package_data = {'': ['__pycache__']},
 

@@ -17,10 +17,38 @@ For more details about these facilities, please refer the help message provided 
 Using pip to install these facility commands:
 
 ```
-python3 -m pip install brifuture-facilities
+python3 -m pip install bffacilities
 or
-pip install brifuture-facilities
+pip install bffacilities
 ```
+
+## Usage
+
+You can use `bff` or `bffacilities` to call sub commands, for example, let's generate QtTest files from directory:
+
+```sh
+## in source directory
+cd test
+bff gqt -d ../src -p Test -e "test,ui"
+```
+
+## ChangeLog
+
+#### v0.0.17
+
+1. add `generateQtTest` script, to automatically create test file that use `QTest`.
+
+#### v0.0.13
+
+1. add torch scripts and labelme scripts for MachineLearing data processing or model building.
+
+#### v0.0.7
+
+1. add simple tcp socket server
+
+#### v0.0.6
+
+1. add common flask functions
 
 ## License
 

@@ -1,0 +1,54 @@
+/*** This file is created automately by bff.generateQtTest.
+
+***/
+
+#include <QTest>
+#include <QDebug>
+#include <QFile>
+#include <QTimer>
+
+#include "config.h"
+#include <{{ include }}.h>
+
+class {{ className }} : public QObject {
+    Q_OBJECT
+public:
+    {{ className }}();
+    ~{{ className }}();
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+
+    {% for method in methods %}
+    // void test{{ method }}_data() { QTest::addColumn<int>("index");  i = 0; QTest::adRow("%d", i) << i; }
+    void test{{ method }}() {
+        QVERIFY2(1 < 2, "INITIAL");
+    }
+    {% endfor %}
+
+private:
+};
+
+
+
+{{ className }}::{{ className }}()
+{
+
+}
+{{ className }}::~{{ className }}()
+{
+
+}
+
+
+void {{ className }}::initTestCase()
+{
+}
+
+void {{ className }}::cleanupTestCase()
+{
+}
+
+
+QTEST_MAIN({{ className }})
+#include "tst_{{ className | lower }}.moc"

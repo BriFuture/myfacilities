@@ -4,49 +4,75 @@
 """Use as script entry
 """
 
-import sys
+import sys, os
+import os.path as osp
+from ._constants import BFF_ROOT_PATH as RootPath
+
+from pathlib import Path
 from .utils import initGetText
 from . import __version__
+from ._plugin import load_scripts
+import json
 
-availableCmds = ['gitrepo', 'monitor', 'broadcast', 'paperutil', 'tray']
+#  add custom sub-commands in this file
+with open(osp.join(RootPath, "myscripts/meta.json")) as f:
+    availableCmds = json.load(f)
+
+availableCmds["tray"] = "tray"
+
+tr = initGetText("bffacility")
+def onError(parser):
+    print(tr('Available sub commands: '))
+    cmds = ""
+    for i, c in enumerate(availableCmds):
+        cmds += f"{i+1}: {c}  \t"
+    print(cmds, "\n")
+    parser.print_usage()
+
+def loadPriScript(cmd, arg):
+    """arg contain subscripts:
+    for example: `bff pri test -h`
+    arg should be `test -h`
+    """
+    pripath = Path(RootPath) / "../_pri"
+    pripath = pripath.resolve()
+    if len(arg) < 1:
+        print("Not Supported!")
+        return
+    try:
+        subscript = arg[0]
+        p, ss = osp.split(subscript)
+        pripath = Path(osp.join(pripath, p))
+        if ss.endswith(".py"):
+            ss = ss[:-3]
+        print(ss, pripath)
+        arg = arg[1:]
+        load_scripts(ss, arg, pripath)
+    except Exception as e:
+        print("Running: ", e) 
 
 def main():
-    tr = initGetText("bffacility")
     from argparse import ArgumentParser
     parser = ArgumentParser(prog='bffacility', 
         description="Usage: bffacility <subcommand> [args]")
-    parser.add_argument('subcmd', type=str, help=tr('type sub-command to exec certain function'))
+    parser.add_argument('subcmd', type=str, nargs="?", help=tr('type sub-command to exec certain function'))
     parser.add_argument('-V', action="version", help=tr(f'show version: {__version__}'), version=f'%(prog)s {__version__}')
 
-    args = parser.parse_args(sys.argv[1:2])
-    cmd = args.subcmd
-
-    sys.argv.pop(0)
+    sys.argv.pop(0)  # remove script name
+    args = vars(parser.parse_args(sys.argv[:1]))
+    cmd = args["subcmd"]
     
-    if cmd in availableCmds:
-        arg = sys.argv[1:]
-    #  add custom sub-commands here
-    if cmd == 'gitrepo':
-        from .myscripts.gitrepo import main as gitrepo
-        gitrepo(arg)
-    elif cmd == 'monitor':
-        from .myscripts.monitor import main as monitor
-        monitor(arg)
-    elif cmd == 'broadcast':
-        from .myscripts.broadcast import main as broadcast
-        broadcast(arg)
-    elif cmd == 'paperutil':
-        from .myscripts.paperUtil import main as paperUtil
-        paperUtil(arg)
-    elif cmd == 'tray':
-        print('test')
+    arg = sys.argv[1:]
+
+    if cmd == 'tray':
         from .win_tray import main as tray
         tray(arg)
-    else:
-        print('Available sub commands: ')
-        cmds = ""
-        for i, c in enumerate(availableCmds):
-            cmds += f"{i+1}: {c}  \t"
-        print(cmds, "\n")
-        parser.print_usage()
-        sys.exit(0)
+        return
+    elif cmd == 'pri':
+        loadPriScript(cmd, arg)
+        return
+    elif cmd in availableCmds:
+        load_scripts(availableCmds[cmd], arg)
+        return
+
+    onError(parser)

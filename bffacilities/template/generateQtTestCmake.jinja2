@@ -1,0 +1,27 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.16)
+project({{ project }}Test LANGUAGES CXX)
+
+init_qt()
+
+find_package(Qt5Test REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+enable_testing()
+
+find_package({{ project }} REQUIRED PATHS "${CMAKE_BINARY_DIR}/{{ project }}")
+
+set({{ project }}_LIBS Qt5::Test {{ project }})
+
+configure_file("config.h.in" "./include/config.h")
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
+
+{% for className in classes %}
+add_executable({{ className }}Test {{ className }}/tst_{{ className | lower }}test.cpp)
+target_link_libraries({{ className }}Test ${ {{- project }}_LIBS} Qt5::Widgets)
+add_test({{ className }}Test {{ className }}Test)
+{% endfor %}
+
+add_custom_target({{ project }}_TEST_LIB ALL)
+
+#add_custom_command( TARGET BSM_LIB POST_BUILD
+#    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:{{ project }}> ${CMAKE_CURRENT_BINARY_DIR}
+#)

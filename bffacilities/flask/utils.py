@@ -83,8 +83,10 @@ def mbflow2str( flow: int ):
         return '%d Gb %d Mb' % ( gb, mb )
     else:
         return '%d Gb' % gb
-
-from flask import request
+try:
+    from flask import request
+except Exception as e:
+    print("Flask is not installed")
 def getPageArgs():
     try:
         page = request.form.get('page', 1)

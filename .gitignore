@@ -1,4 +1,3 @@
-
 venv
 build-*
 ~*.docx
@@ -13,3 +12,4 @@ dist
 deprecated
 .vscode
 .bfc
+tmp

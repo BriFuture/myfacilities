@@ -1,0 +1,11 @@
+{
+    "gitrepo": "gitrepo",
+    "monitor": "monitor",
+    "broadcast": "broadcast",
+    "paperutil": "paperutil",
+    "wakeonlan": "wakeonlan",
+    "cgr": "checkGitRepo",
+    "gqt": "generateQtTest",
+    "gmc": "generateMultiCpack",
+    "gdeb": "generateDebPacket"
+}

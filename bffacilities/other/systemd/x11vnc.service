@@ -1,0 +1,15 @@
+[Unit]
+Description=Start x11vnc at startup.
+Requires=lightdm.service
+After=lightdm.service
+
+[Service]
+Type=simple
+# User=x11user
+# ExecStart=/usr/bin/x11vnc -loop -forever -bg -rfbport 5900 -xkb -noxrecord -noxfixes -noxdamage -shared -norc -auth /run/user/108/lightdm/Xauthority -rfbauth /etc/x11vnc.pass
+#ExecStart=/usr/bin/x11vnc -loop -forever -bg -rfbport 5900 -xkb -noxrecord -noxfixes -noxdamage -shared -norc -auth /run/user/108/lightdm/Xauthority -rfbauth /etc/x11vnc.pass -noncache
+ExecStart=/usr/bin/x11vnc -loop -forever -bg -rfbport 5900 -xkb -noxrecord -noxfixes -noxdamage -shared -norc -auth /var/run/lightdm/root/:0 -rfbauth /etc/x11vnc.pass -noncache
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

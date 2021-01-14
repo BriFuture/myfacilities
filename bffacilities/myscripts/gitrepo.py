@@ -97,41 +97,42 @@ class GitRepoFrame(Frame):
 
     def parseArgs(self, argv):
         args = self.parser.parse_args(argv)
-
-        self.config["action"] = "init"
+        config = self.config
+        config["action"] = "init"
         if args.delete:
-            self.config["action"] = "delete"
+            config["action"] = "delete"
         elif args.list:
-            self.config["action"] = "list"
+            config["action"] = "list"
 
-        self.config["windows"] = args.windows
-        self.config["normal_user"] = args.force
+        config["windows"] = args.windows
+        config["normal_user"] = args.force
 
-        if self.config["action"] != "list":
+        if config["action"] != "list":
             if not args.repo:
                 logger.warning(
                     "Repository name should be specified. Or -l (--list) options should be specified. \n------------------------")
                 self.parser.print_help()
                 sys.exit(1)
         else:
-            self.config["windows"] = True
-            self.config["normal_user"] = True
+            config["windows"] = True
+            config["normal_user"] = True
 
         if args.src_dir is not None and args.src_dir != "/":
-            self.config["src"] = args.src_dir
+            config["src"] = args.src_dir
 
         repo = args.repo or "Test"
         if repo[-4:] != ".git":
             repo = "{}.git".format(repo)
 
-        self.config["repo"] = repo
+        config["repo"] = repo
 
     def run(self):
-        repo = Path(self.config["repo_dir"]) / self.config["repo"]
+        config = self.config
+        repo = Path(config["repo_dir"]) / config["repo"]
         try:
-            if self.config["action"] == "delete":
+            if config["action"] == "delete":
                 deleteRepo(repo)
-            elif self.config["action"] == "init":
+            elif config["action"] == "init":
                 createRepo(repo)
             else:
                 listRepo(repo)
@@ -139,17 +140,18 @@ class GitRepoFrame(Frame):
             logger.warning(e)
 
 def createRepo(repo: Path):
-    if repo.exists():
-        logger.warning("Repository: {} exists, if you want to recreate a new repository, please delete it first.\
-            Now change the owner of that repository".format(repo))
-        try:
-            shutil.chown(repo, config["user"], config["group"])
-        except Exception as e:
-            logger.critical(
-                "You may need to run this script under super user privilege.")
-            logger.critical(e)
-        logger.info("Repository owner changed.")
+    if not repo.exists():
         return
+    logger.warning("Repository: {} exists, if you want to recreate a new repository, please delete it first.\
+        Now change the owner of that repository".format(repo))
+    try:
+        shutil.chown(repo, config["user"], config["group"])
+        logger.info("Repository owner changed.")
+    except Exception as e:
+        logger.critical(
+            "You may need to run this script under super user privilege.")
+        logger.critical(e)
+        
 
     logger.info("Creating an repository: {}".format(repo))
     repo.mkdir(parents=True)
@@ -174,9 +176,9 @@ def deleteRepo(repo: Path):
     try:
         # repo.rmdir()
         shutil.rmtree(str(repo))
+        logger.info("Repository deleted.")
     except Exception as e:
         logger.warning(e)
-    logger.info("Repository deleted.")
 
 
 def listRepo(repo: Path):

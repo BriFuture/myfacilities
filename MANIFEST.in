@@ -1,2 +1,10 @@
 recursive-include bffacilities/locale *
 global-exclude *.pyc
+recursive-include bffacilities/flask *.py
+recursive-include bffacilities/torch *.py
+recursive-include bffacilities/myscripts *.py
+recursive-include bffacilities/myscripts *.json
+recursive-include bffacilities/template *.jinja2
+recursive-include bffacilities/imgs *
+recursive-include bffacilities/other/winbat *
+recursive-include bffacilities/other/systemd *

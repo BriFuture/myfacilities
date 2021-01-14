@@ -3,14 +3,14 @@
 
 __version__ = '0.0.2'
 from bffacilities.utils import createLogger, initGetText
-from bffacilities._frame import Frame
+from bffacilities._frame import Frame, common_entry
 from pathlib import Path
 from argparse import ArgumentParser
 import os
 from colorama import Fore, Style
 
 tr = initGetText("gitrepo")
-logger = createLogger("gitrepo.log", stream=True)
+logger = createLogger("gitrepo.log", stream=True, savefile=False)
 
 class PaperUtil(Frame):
     def __init__(self):
@@ -142,10 +142,4 @@ class PaperUtil(Frame):
                 subprocess.call(('xdg-open', file))
         except Exception as e:
             logger.warning(e)
-import sys
-def main(argv = None):
-    pu = PaperUtil()
-    pu.initArgs()
-    if argv is None: argv = sys.argv[1:]
-
-    pu.parseArgs(argv)
+main = common_entry(PaperUtil)
