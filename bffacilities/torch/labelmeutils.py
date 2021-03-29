@@ -70,7 +70,7 @@ class LabelmeModifier(object):
         jsonfiles = [file for file in files if ".json" in file ]
         self.names = [img[: img.rfind(image_suffix)] for img in self.images]
 
-        print(f"Found files at {root} images: {len(self.images)}, jsons: {len(jsonfiles)}")
+        print(f"Found files at {root} images ({image_suffix}): {len(self.images)}, jsons: {len(jsonfiles)}")
         
         os.makedirs(self.dst_dir, exist_ok=True)
 
@@ -337,7 +337,7 @@ class LabelmeModifier(object):
         nr = [0 for _ in range(slen)]
         self._renameShapes(labels, None, shape_idxes=si, num_reserved=nr)
 
-    def _renameShapes(self, shapenames, new_shapenames=None, shape_idxes=None, num_reserved=None):
+    def _old_renameShapes(self, shapenames, new_shapenames=None, shape_idxes=None, num_reserved=None):
         """Rename one shape at one time,
 
         Arguments:
@@ -383,24 +383,120 @@ class LabelmeModifier(object):
                 sh.copy(osp.join(self.root, f"{name}{self.image_suffix}"), self.dst_dir)
             count += 1
         print(f"Done for {count}")
+    def _renameShapes(self, labelShapes):
+        """Rename one shape at one time,
 
+        Arguments:
+            labelShapes(dict): 
+            ```
+            {
+                "old_label_name": {
+                    "label": "new_label_name", // empty for not change
+                    "num": 1000, // default 1000,
+                    "shape_idx": False, // default False
+                }
+            }
+            ```
+        """
+        count = 0
+
+        copyImage = (self.root != self.dst_dir)
+
+        for name in tqdm(self.names):
+            orijsoncontent = self.readJsonFile(f"{name}.json")
+            if orijsoncontent is None:
+                continue
+            new_shapes = []
+            reserve_count = 0
+            # iterate over original json content
+            for shape in orijsoncontent["shapes"]:
+                # print("====\n", shape, "====\n")
+                oldName = shape["label"]
+                if oldName not in labelShapes:
+                    new_shapes.append(shape)
+                    continue
+                prop = labelShapes[oldName]
+                new_name = prop.get("label", oldName)
+                shape_idx = prop.get("shape_idx", False)
+                num_reserved = prop.get("num", 1000)
+                # if count not meet, reserve it
+                if reserve_count < num_reserved:
+                    nshape = copy.deepcopy(shape)
+                    if shape_idx:
+                        nshape["label"] = new_name + f"-{reserve_count}"
+                    else:
+                        nshape["label"] = new_name
+                    new_shapes.append(nshape)
+                    reserve_count += 1
+            # print(new_shapes)
+            orijsoncontent["shapes"] = list(sorted(new_shapes, key=lambda x: x['label']))
+            with open(osp.join(self.dst_dir, f"{name}.json"), "w") as f:
+                f.write(json.dumps(orijsoncontent, indent=True))
+            if copyImage:
+                sh.copy(osp.join(self.root, f"{name}{self.image_suffix}"), self.dst_dir)
+            count += 1
+        print(f"Done for {count}")
     def renameShapes(self, shapename, new_shapename=None, num_reserved=None, shape_idxes=None):
         """
         Arguments:
-            shapename (list(str) | str)
-            new_shapename (list(str) | str)
+            shapename (list(str) ) | dict 
+            new_shapename (list(str))
+            num_reserved  list(Number) max_number of instance reserved, default 1000
+            shape_idxes list(Boolean) whether to append idxes for different instance in one Picture
+            
+        Example:
+        
+        use one dict:
+
+        ```py
+        lm = LabelmeModifier(src_dir, dst_dir, image_suffix=".png")
+        labels = {
+            "Person": {
+                "label": "Human",
+                "num": 100, 
+                "shape_idx": True,
+            }
+        }
+        lm.renameShapes(labels)
+        ```
+
+        or use multiple arrays instead:
+
+        ```py
+        lm = LabelmeModifier(src_dir, dst_dir, image_suffix=".png")
+        ori_label = ["Person"]
+        new_label = ["Human"]
+        nums = [100]
+        lm.renameShapes(ori_label, new_label, nums)
+        ```
+
         """
         stype = type(shapename)
         if stype == str:
-            shapename = [shapename]
-        assert type(shapename) is list
-        slen = len(shapename)
-        if shape_idxes is None:
-            shape_idxes = [False for _ in range(slen)]
-        if num_reserved is None:
-            num_reserved = [1000 for _ in range(slen)]
-        self._renameShapes(shapename, new_shapename, shape_idxes=shape_idxes, num_reserved=num_reserved)
+            raise ValueError("String is not supported anymore. Please Use List instead.")
+        if stype == dict:
 
+            self._renameShapes(shapename)
+        else:
+            assert stype is list, " shapename must be either List or Dict"
+
+            if new_shapename is None:
+                new_shapename = shapename
+            slen = len(shapename)
+            if shape_idxes is None:
+                shape_idxes = [False for _ in range(slen)]
+            if num_reserved is None:
+                num_reserved = [1000 for _ in range(slen)]
+            assert len(new_shapenames) == len(shapename) == len(shape_idxes) == len(num_reserved)
+            shapes = {}
+            for idx, name in enumerate(shapename):
+                shapes[name] = {
+                    "label": new_shapename[idx],
+                    "num": num_reserved[idx],
+                    "shape_idx": shape_idxes[idx]
+                }
+            self._renameShapes(shapes)
+        
         
     def polyfitSlope(self):
         for jsonfile in tqdm(jsonfiles):

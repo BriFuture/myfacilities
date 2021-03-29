@@ -34,6 +34,9 @@ bff gqt -d ../src -p Test -e "test,ui"
 
 ## ChangeLog
 
+#### v0.0.19
+1. some updates on generateQtTest and torch scripts
+
 #### v0.0.17
 
 1. add `generateQtTest` script, to automatically create test file that use `QTest`.

@@ -177,7 +177,7 @@ def testClang(args):
         d = args["dir"]
         # print("============")
         exclude = args.get("exclude_dir", "")
-        if len(exclude) > 0:
+        if exclude is not None and len(exclude) > 0:
             exclude = exclude.split(",")
         else:
             exclude = []

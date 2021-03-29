@@ -44,7 +44,7 @@ class CocoDataset(CocoDetection):
         super().__init__(osp.join(root, "JPEGImages"), annFile, transform=transform, \
             target_transform=target_transform, transforms=transforms)
         self.root = str(root)
-        self.train = train
+        self.isTrain = train
         self.num_keypoints = num_keypoints
         self.coco_style_kp = coco_style_kp
         self._mask = mask
@@ -184,7 +184,14 @@ class CocoDataset(CocoDetection):
 import numpy as np
 
 class MaskDataset(Dataset):
-    """Only for mask prediction and voc-style dataset
+    """
+    Only for mask prediction and voc-style dataset
+
+    @Note If your dataset is labeled by `labelme`, you should consider convert
+    it first or use LabelmeDataset.
+    @See labelmescripts for how to convert dataset from labelme format to voc
+    @Update 21.03.12
+
     """
 
     Labels = None
@@ -194,8 +201,8 @@ class MaskDataset(Dataset):
 
     @staticmethod
     def reprLabel(idx):
-        """idx from 1,
-        0 represets background
+        """idx starts from 1,
+        0 represents background
         """
         return MaskDataset.Labels[idx]
 
@@ -204,8 +211,8 @@ class MaskDataset(Dataset):
         self.root = str(root)
         self.name = kwargs.get("name")
         self.transforms = transforms
-        self.train = train
-        if self.train:
+        self.isTrain = train
+        if self.isTrain:
             imgs = []
             for img in sorted(os.listdir(osp.join(root, "JPEGImages"))):
                 if (not img.endswith(".json") and not osp.isdir(osp.join(root,img))):
@@ -281,7 +288,7 @@ class MaskDataset(Dataset):
         return target
 
     def __getitem__(self, idx):
-        if not self.train:
+        if not self.isTrain:
             img_path = osp.join(self.root, self.imgs[idx])   
             img = Image.open(img_path)
 
@@ -316,3 +323,139 @@ class MaskDataset(Dataset):
     def __repr__(self):
         return f'<DS {self.name}>'
 
+class LabelmeDataset(Dataset):
+
+    def num_classes():
+        return 0
+    def reprLabel(idx):
+        """ids starts from 1
+        0 represents background
+        """
+        return None
+    def __init__(self, rootDir, debug = False, train=True, transforms=None, imgFormat=None, **kwargs):
+        self.rootDir = str(rootDir)
+        self.name = kwargs.get("name")
+        self.transforms = transforms
+        self.isTrain = train
+        if imgFormat is None:
+            imgFormat = [ ".jpg", ".png" ]
+        
+        assert type(imgFormat) is list
+
+        # save all images json file name
+        if self.isTrain:
+            imgs = []
+            jsons = []
+            for filename in sorted(root):
+                if osp.isdir(osp.join(root,filename)):
+                    continue
+
+                suffix = filename[filename.rfind("."):]
+                if suffix in imgFormat :
+                    imgs.append(filename)
+                if suffix == ".json":
+                    jsons.append(filename)
+            self.imgs = imgs
+            self.jsons = jsons
+        else:
+            imgs = []
+            for filename in sorted(os.listdir(root)):
+                if osp.isdir(osp.join(root,filename)):
+                    continue
+                suffix = filename[filename.rfind("."):]
+                if suffix in imgFormat:
+                    imgs.append(filename)
+            self.imgs = imgs
+
+        print("TrainDataset Size: ", len(self.imgs))
+        # print("Dataset prepared")
+
+    def getMask(self, idx):
+        mask_path = osp.join(self.root, "SegmentationClassPNG", self.masks[idx])
+        mask = Image.open(mask_path)
+        mask = np.array(mask)
+        return mask
+
+    def getTarget(self, idx, mask, to_tensor=True):
+        """All values are numpy datatype, Not converted to Tensor
+        """
+        # instances are encoded as different colors
+        obj_ids = np.unique(mask)
+        # first id is the background, so remove it
+        obj_ids = obj_ids[1:]
+        masks = (mask == obj_ids[:, None, None])
+        # get bounding box coordinates for each mask
+        num_objs = len(obj_ids)
+        boxes = []
+        labels = []
+        iscrowd = []
+        for i in range(num_objs):
+            pos = np.where(masks[i])
+            label = np.max(mask[masks[i]])
+            # print(obj_ids, label)
+            xmin = np.min(pos[1])
+            xmax = np.max(pos[1])
+            ymin = np.min(pos[0])
+            ymax = np.max(pos[0])
+            boxes.append([xmin, ymin, xmax, ymax])
+            labels.append(label)
+            iscrowd.append(0)
+        # print(boxes)
+
+        target = {}
+
+        # target["maskimg"] = mask
+        if to_tensor:
+            target["image_id"] = torch.tensor([idx])
+            boxes = torch.as_tensor(boxes, dtype=torch.float32)
+            target["boxes"] = boxes
+            # two class currently
+            target["labels"] = torch.tensor(labels, dtype=torch.int64)
+            target["masks"] = torch.as_tensor(masks, dtype=torch.uint8)
+            # target["area"] = torch.tensor(target["area"], dtype=torch.uint8)
+            target["area"] = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
+            target["iscrowd"] = torch.as_tensor(iscrowd, dtype=torch.int64)
+        else:
+            target["boxes"] = boxes
+            target["labels"] = labels
+            target["masks"] = masks
+            target["image_id"] = [idx]
+            target["iscrowd"] = iscrowd
+
+        return target
+
+    def __getitem__(self, idx):
+        if not self.isTrain:
+            img_path = osp.join(self.root, self.imgs[idx])   
+            img = Image.open(img_path)
+
+            img = np.array(img)
+            # img = torch.Tensor(img)
+            if self.transforms is not None:
+                img, _ = self.transforms(img)
+            else:
+                img = FT.to_tensor(img)
+            return img, None
+
+        mask_path = osp.join(self.root, "SegmentationClassPNG", self.masks[idx])
+        mask = Image.open(mask_path)
+        mask = np.array(mask)
+        target = self.getTarget(idx, mask)
+
+        img_path = osp.join(self.root, "JPEGImages", self.imgs[idx])
+        img = Image.open(img_path).convert('L')
+        img = np.array(img)
+
+        if self.transforms is not None:
+            img, target = self.transforms(img, target)
+        else:
+            img = FT.to_tensor(img)
+
+        return img, target
+
+
+    def __len__(self):
+        return len(self.imgs)
+
+    def __repr__(self):
+        return f'<DS {self.name}>'

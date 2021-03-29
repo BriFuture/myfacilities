@@ -16,7 +16,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 
 {% for className in classes %}
 add_executable({{ className }}Test {{ className }}/tst_{{ className | lower }}test.cpp)
-target_link_libraries({{ className }}Test ${ {{- project }}_LIBS} Qt5::Widgets)
+target_link_libraries({{ className }}Test ${ {{- project }}_LIBS})
 add_test({{ className }}Test {{ className }}Test)
 {% endfor %}
 
